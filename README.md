@@ -64,3 +64,17 @@ npm run check        # svelte-check type checking
 - Servers are supervised by the panel process — closing the panel stops its servers. Use each server's generated `start.cmd` if you want to run one outside the panel.
 - Custom storage locations are remembered in `panel/server/instances.json` (gitignored).
 - The panel binds to `127.0.0.1` only; it is meant for local admin use.
+
+## To be worked on
+
+- [ ] Graceful stop commands for Valheim and Palworld (currently force-killed)
+- [ ] Keep servers running when the panel restarts (detached/reattach)
+- [ ] Backups (worlds + configs, with restore)
+- [ ] Restart action and crash auto-restart
+- [ ] Updating installed servers (new jars / `steamcmd` re-validate)
+- [ ] Files tab for non-Minecraft servers (currently Minecraft only)
+- [ ] CS2 plugin management UI (browse/upload `.dll`s; framework install already works)
+- [ ] Plugin shop for Steam games
+- [ ] Live map page (e.g. via a map renderer plugin)
+- [ ] Optional password/token if ever exposed beyond localhost
+
