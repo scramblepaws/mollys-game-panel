@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { getShopDetail, searchShop } from '../lib/api'
+  import { getShopDetail, installProject, searchShop } from '../lib/api'
   import type { ShopDetail, ShopItem } from '../lib/types'
   import { MC_VERSION } from '../lib/config'
   import { fade } from 'svelte/transition'
   import { popIn, popOut } from '../lib/transitions'
 
   type Filter = 'any' | 'plugin' | 'datapack'
+
+  let { serverName }: { serverName: string } = $props()
 
   let query = $state('')
   let filter = $state<Filter>('any')
@@ -19,6 +21,9 @@
   let detailError = $state('')
   let media = $state(0)
   let zoom = $state(false)
+  let installing = $state(false)
+  let installMsg = $state('')
+  let installErr = $state('')
 
   let seq = 0
   let detailSeq = 0
@@ -74,6 +79,23 @@
   function closeDetail() {
     zoom = false
     openItem = null
+    installMsg = ''
+    installErr = ''
+  }
+
+  async function install() {
+    if (!detail || !openItem) return
+    installing = true
+    installMsg = ''
+    installErr = ''
+    try {
+      const r = await installProject(serverName, detail.slug, openItem.type)
+      installMsg = `Installed ${r.file} to ${serverName}`
+    } catch (e) {
+      installErr = e instanceof Error ? e.message : 'Install failed.'
+    } finally {
+      installing = false
+    }
   }
 
   function onKey(e: KeyboardEvent) {
@@ -234,8 +256,9 @@
               {/each}
             </div>
             <div class="detail-actions">
-              <button class="btn btn-primary sm" disabled>
-                <iconify-icon icon="pixelarticons:download" width="14"></iconify-icon> Install
+              <button class="btn btn-primary sm" disabled={installing} onclick={install}>
+                <iconify-icon icon="pixelarticons:download" width="14"></iconify-icon>
+                {installing ? 'Installing…' : `Install to ${serverName}`}
               </button>
               <a
                 class="btn btn-ghost sm"
@@ -245,6 +268,8 @@
               >
                 <iconify-icon icon="pixelarticons:external-link" width="14"></iconify-icon> Modrinth
               </a>
+              {#if installMsg}<span class="hint good">{installMsg}</span>{/if}
+              {#if installErr}<span class="hint err">{installErr}</span>{/if}
             </div>
           </div>
 

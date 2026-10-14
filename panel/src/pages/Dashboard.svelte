@@ -1,73 +1,105 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { getActivity, getStats } from '../lib/api'
-  import type { Activity, Stats } from '../lib/types'
-  import { SERVER_NAME } from '../lib/config'
+  import { getServerInfo, getServerLogs } from '../lib/api'
+  import type { ServerInfo } from '../lib/types'
 
-  let stats: Stats | null = $state(null)
-  let activity: Activity[] = $state([])
+  let { serverName }: { serverName: string } = $props()
 
-  onMount(async () => {
-    stats = await getStats()
-    activity = await getActivity()
+  let info = $state<ServerInfo | null>(null)
+  let feed = $state<{ time: string; text: string }[]>([])
+  let error = $state('')
+
+  async function refresh() {
+    try {
+      info = await getServerInfo(serverName)
+      error = ''
+    } catch {
+      error = 'Could not reach the panel backend.'
+    }
+    try {
+      const logs = await getServerLogs(serverName)
+      feed = logs.lines.slice(-8).reverse().map((l) => ({ time: l.time, text: l.text }))
+    } catch {}
+  }
+
+  onMount(() => {
+    void refresh()
+    const t = setInterval(() => void refresh(), 4000)
+    return () => clearInterval(t)
   })
+
+  const fmtUptime = (s: number | null) => {
+    if (s === null) return '—'
+    if (s < 60) return `${s}s`
+    if (s < 3600) return `${Math.floor(s / 60)}m`
+    return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`
+  }
 </script>
 
 <div class="page-head">
   <div>
     <h1>Dashboard</h1>
-    <p class="sub">{SERVER_NAME} · live overview</p>
+    <p class="sub">{serverName} · live overview</p>
   </div>
-  <span class="pill pill-good"><span class="dot-live"></span> Server online</span>
+  {#if info?.running}
+    <span class="pill pill-good"><span class="dot-live"></span> running</span>
+  {:else}
+    <span class="pill">offline</span>
+  {/if}
 </div>
 
-{#if stats}
+{#if error}
+  <p class="hint err">{error}</p>
+{/if}
+
+{#if info && !info.running}
+  <p class="hint">Server is offline — start it from the Servers page to see live data.</p>
+{:else if info && info.running && info.rcon === 'off' && info.game === 'minecraft'}
+  <p class="hint">Live player data needs RCON — restart this server from the panel once to enable it.</p>
+{/if}
+
+{#if info}
   <div class="stats">
     <div class="card stat">
       <iconify-icon icon="pixelarticons:users" width="20"></iconify-icon>
-      <div class="stat-num">{stats.online}<span class="stat-dim">/{stats.max}</span></div>
+      <div class="stat-num">
+        {info.online ?? '—'}<span class="stat-dim">/{info.max ?? '—'}</span>
+      </div>
       <div class="stat-label">Players online</div>
     </div>
     <div class="card stat">
       <iconify-icon icon="pixelarticons:speed-fast" width="20"></iconify-icon>
-      <div class="stat-num">{stats.tps}<span class="stat-dim">.0</span></div>
-      <div class="stat-label">TPS</div>
+      <div class="stat-num">{info.tps ? info.tps[0].toFixed(1) : '—'}</div>
+      <div class="stat-label">TPS (1 min)</div>
     </div>
     <div class="card stat">
       <iconify-icon icon="pixelarticons:clock" width="20"></iconify-icon>
-      <div class="stat-num">{stats.uptime}</div>
-      <div class="stat-label">Uptime</div>
+      <div class="stat-num">{fmtUptime(info.uptimeSeconds)}</div>
+      <div class="stat-label">Uptime (panel)</div>
     </div>
     <div class="card stat">
       <iconify-icon icon="pixelarticons:earth" width="20"></iconify-icon>
-      <div class="stat-num">{stats.worlds}</div>
+      <div class="stat-num">{info.worlds}</div>
       <div class="stat-label">Worlds</div>
     </div>
   </div>
+{:else}
+  <div class="stats">
+    {#each Array(4) as _, i (i)}
+      <div class="card stat"><div class="skeleton sk-line" style="width: 60%"></div></div>
+    {/each}
+  </div>
 {/if}
 
-<div class="cols">
-  <div class="card pad">
-    <h2>Recent activity</h2>
+<div class="card pad">
+  <h2>Recent activity</h2>
+  {#if feed.length === 0}
+    <p class="hint">No log output yet.</p>
+  {:else}
     <ul class="feed">
-      {#each activity as a}
+      {#each feed as a, i (i)}
         <li><span class="t">{a.time}</span><span>{a.text}</span></li>
       {/each}
     </ul>
-  </div>
-  <div class="card pad">
-    <h2>Quick actions</h2>
-    <div class="actions">
-      <a class="btn btn-primary" href="#console">
-        <iconify-icon icon="pixelarticons:terminal" width="16"></iconify-icon> Open console
-      </a>
-      <button class="btn btn-ghost" disabled>
-        <iconify-icon icon="pixelarticons:reload" width="16"></iconify-icon> Restart server
-      </button>
-      <button class="btn btn-ghost" disabled>
-        <iconify-icon icon="pixelarticons:archive" width="16"></iconify-icon> Backup now
-      </button>
-    </div>
-    <p class="hint">Server actions are wired in M2–M3.</p>
-  </div>
+  {/if}
 </div>

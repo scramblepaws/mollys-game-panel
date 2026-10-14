@@ -438,6 +438,171 @@ button.nav-item {
   gap: 12px;
 }
 
+.settings-wrap {
+  position: relative;
+}
+
+.settings-wrap .user-pop {
+  left: auto;
+  right: 0;
+  width: 250px;
+}
+
+.settings-path {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 9px;
+}
+
+.settings-path .mono {
+  font-size: 11.5px;
+  color: var(--faint);
+  word-break: break-all;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.files {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+  height: calc(100vh - 220px);
+}
+
+.ftree {
+  padding: 12px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.ft-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 12.5px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.ft-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ft-item iconify-icon {
+  color: var(--accent);
+  flex: none;
+}
+
+.ft-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ft-size {
+  color: var(--faint);
+  font-size: 10.5px;
+}
+
+.feditor {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  min-height: 0;
+}
+
+.fed-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.fed-head .mono {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fed-note {
+  padding: 8px 14px 0;
+  margin: 0;
+}
+
+.fed-edit {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.fed-gutter {
+  flex: none;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.25);
+  border-right: 1px solid var(--line);
+  color: var(--faint);
+  user-select: none;
+}
+
+.fed-gutter pre {
+  margin: 0;
+  padding: 14px 10px 14px 12px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  text-align: right;
+}
+
+.fed-text {
+  flex: 1;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  padding: 14px;
+  resize: none;
+  outline: none;
+  overflow: auto;
+}
+
+.fed-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--faint);
+  text-align: center;
+  min-height: 300px;
+  padding: 20px;
+}
+
 .dot-live {
   width: 8px;
   height: 8px;
@@ -568,6 +733,12 @@ button.nav-item {
   color: var(--good);
   border-color: rgba(126, 226, 168, 0.32);
   background: rgba(126, 226, 168, 0.08);
+}
+
+.pill-bad {
+  color: var(--bad);
+  border-color: rgba(255, 90, 110, 0.32);
+  background: rgba(255, 90, 110, 0.08);
 }
 
 .pill-warn {
@@ -788,6 +959,16 @@ button.nav-item {
 .world-kind {
   color: var(--muted);
   font-size: 12.5px;
+}
+
+.world-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.world-row > iconify-icon {
+  color: var(--accent);
 }
 
 .world-meta {
@@ -1807,11 +1988,45 @@ button.pill {
   background: var(--accent-soft);
   border: 1px solid var(--accent-line);
   color: var(--accent);
+  position: relative;
+}
+
+.scard-icon.pickable {
+  cursor: pointer;
+}
+
+.icon-x {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bad);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  font-size: 11px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.scard:hover .icon-x {
+  display: flex;
 }
 
 .scard-id {
   min-width: 0;
   flex: 1;
+}
+
+.scard-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .scard-name {
@@ -1968,6 +2183,64 @@ button.pill {
   background: var(--accent-soft);
 }
 
+.wiz-scroll {
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  max-height: min(360px, 54vh);
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.game-card {
+  gap: 0;
+  padding: 5px;
+}
+
+.game-card:hover {
+  border-color: var(--accent-line);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.game-card.active {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.game-art {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.game-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.game-art img.pixel {
+  image-rendering: pixelated;
+}
+
+.game-check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
 .eula {
   display: flex;
   align-items: center;
@@ -1986,6 +2259,19 @@ button.pill {
 
 .hint.err {
   color: var(--bad);
+}
+
+.hint.good {
+  color: var(--good);
+}
+
+.btn.danger {
+  color: var(--bad);
+}
+
+.btn.danger:hover {
+  border-color: var(--bad);
+  background: rgba(255, 90, 110, 0.08);
 }
 
 .spin {
@@ -2008,6 +2294,75 @@ button.pill {
 .sk-line {
   height: 12px;
   border-radius: 999px;
+}
+
+.toast-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.toast-meta .mono {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scard-install {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.scard-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.scard-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #ffb86b);
+  transition: width 0.5s ease;
+}
+
+.scard-pct {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.scard-pct {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.scard-install .faint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 52%;
+}
+
+.scard-icon img.pixel {
+  image-rendering: pixelated;
+}
+
+.scard-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--faint);
+  margin-bottom: 10px;
 }
 
 @keyframes shimmer {

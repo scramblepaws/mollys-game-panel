@@ -6,6 +6,7 @@
   let {
     page,
     serverName,
+    game,
     onleave,
     shaderOn,
     tiltOn,
@@ -13,11 +14,14 @@
   }: {
     page: PageId
     serverName: string
+    game: string
     onleave: () => void
     shaderOn: boolean
     tiltOn: boolean
     ontoggle: (k: 'shader' | 'tilt') => void
   } = $props()
+
+  const items = $derived(NAV.filter((n) => n.id !== 'files' || game === 'minecraft'))
 </script>
 
 <aside>
@@ -32,7 +36,7 @@
       <span>All servers</span>
     </button>
     <div class="nav-sep"></div>
-    {#each NAV as item (item.id)}
+    {#each items as item (item.id)}
       <a class="nav-item" class:active={page === item.id} href={`#${item.id}`}>
         <iconify-icon icon={item.icon} width="18"></iconify-icon>
         <span>{item.label}</span>

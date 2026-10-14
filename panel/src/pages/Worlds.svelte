@@ -1,42 +1,65 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { getWorlds } from '../lib/api'
-  import type { World } from '../lib/types'
+  import { getServerWorlds } from '../lib/api'
+  import type { WorldInfo } from '../lib/types'
 
-  let worlds: World[] = $state([])
+  let { serverName }: { serverName: string } = $props()
+
+  let worlds = $state<WorldInfo[]>([])
+  let loading = $state(true)
+  let error = $state('')
 
   onMount(async () => {
-    worlds = await getWorlds()
+    try {
+      worlds = await getServerWorlds(serverName)
+      error = ''
+    } catch {
+      error = "Couldn't reach the panel backend."
+    } finally {
+      loading = false
+    }
   })
+
+  const fmtSize = (n: number) =>
+    n >= 1e9 ? `${(n / 1e9).toFixed(2)} GB` : n >= 1e6 ? `${(n / 1e6).toFixed(0)} MB` : `${Math.round(n / 1e3)} KB`
+  const label = (n: string) => (n.includes('nether') ? 'Nether' : n.includes('end') ? 'The End' : 'Overworld')
 </script>
 
 <div class="page-head">
   <div>
     <h1>Worlds</h1>
-    <p class="sub">Two groups: survival · creative (separate inventories &amp; ender chests)</p>
+    <p class="sub">World folders on disk for {serverName}</p>
   </div>
-  <span class="pill">M4</span>
+  <span class="pill">{worlds.length} folder{worlds.length === 1 ? '' : 's'}</span>
 </div>
 
-<div class="world-grid">
-  {#each worlds as w (w.id)}
-    <div class="card world-card">
-      <div class="world-top">
-        <span class="world-icon"><iconify-icon icon={w.icon} width="20"></iconify-icon></span>
-        <div>
-          <div class="world-name">{w.name}</div>
-          <div class="world-kind">{w.kind}</div>
+{#if error}
+  <p class="hint err">{error}</p>
+{/if}
+
+{#if loading}
+  <div class="world-grid">
+    {#each Array(3) as _, i (i)}
+      <div class="card pad"><div class="skeleton sk-line" style="width: 60%"></div></div>
+    {/each}
+  </div>
+{:else if worlds.length === 0}
+  <div class="card pad">
+    <p class="hint">No world folders yet — start the server once and it generates the overworld.</p>
+  </div>
+{:else}
+  <div class="world-grid">
+    {#each worlds as w (w.name)}
+      <div class="card pad">
+        <div class="world-row">
+          <iconify-icon icon="pixelarticons:earth" width="20"></iconify-icon>
+          <div>
+            <div class="world-name">{w.name}</div>
+            <div class="world-kind">{label(w.name)} · {fmtSize(w.size)}</div>
+          </div>
         </div>
       </div>
-      <div class="world-meta">
-        <span class="pill" class:pill-pink={w.difficulty === 'peaceful'}>{w.difficulty}</span>
-        <span class="pill">border {w.border}</span>
-      </div>
-      <div class="world-stats">
-        <span><b>{w.players}</b> playing</span>
-        <span><b>{w.id}</b> id</span>
-      </div>
-      <button class="btn btn-ghost" disabled>Switch world</button>
-    </div>
-  {/each}
-</div>
+    {/each}
+  </div>
+  <p class="hint">Modern Minecraft keeps the Nether and End inside each world folder as dimensions.</p>
+{/if}

@@ -1,15 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { fade } from 'svelte/transition'
+  import { popIn } from './lib/transitions'
   import Sidebar from './components/Sidebar.svelte'
   import ShaderBg from './components/ShaderBg.svelte'
   import Dashboard from './pages/Dashboard.svelte'
   import Servers from './pages/Servers.svelte'
   import Players from './pages/Players.svelte'
-  import MapPage from './pages/Map.svelte'
   import Worlds from './pages/Worlds.svelte'
+  import Files from './pages/Files.svelte'
   import Console from './pages/Console.svelte'
   import Shop from './pages/Shop.svelte'
-  import AdminTools from './pages/AdminTools.svelte'
   import { NAV } from './lib/nav'
   import type { PageId } from './lib/nav'
   import { listServers } from './lib/api'
@@ -27,19 +28,22 @@
 
   window.addEventListener('hashchange', () => (page = fromHash()))
 
-  onMount(async () => {
+  onMount(() => {
     const saved = localStorage.getItem('panel.server')
-    if (!saved) return
-    try {
-      const list = await listServers()
-      const s = list.find((i) => i.name === saved)
-      if (s) server = s
-    } catch {}
+    if (saved) {
+      listServers()
+        .then((list) => {
+          const s = list.find((i) => i.name === saved)
+          if (s) server = s
+        })
+        .catch(() => {})
+    }
   })
 
   function enter(s: ServerInstance) {
     server = s
     localStorage.setItem('panel.server', s.name)
+    if (page === 'files' && s.game !== 'minecraft') page = 'dashboard'
   }
 
   function leave() {
@@ -61,7 +65,7 @@
     }
   }
 
-  const TILT = '.card, .detail-top, .detail-info, .model-panel, .media-main, .media-thumbs button, .search, .seg button, .tab, .wiz-option'
+  const TILT = '.card, .detail-top, .detail-info, .model-panel, .media-main, .media-thumbs button, .search, .seg button, .tab, .wiz-option:not(.game-card)'
   let active: HTMLElement | null = null
 
   function resetCard(el: HTMLElement | null) {
@@ -128,26 +132,30 @@
 <div class="scene-grid"></div>
 
 {#if !server}
-  <Servers onenter={enter} {shaderOn} {tiltOn} ontoggle={toggleVisual} />
+  <div in:fade={{ duration: 180 }}>
+    <Servers onenter={enter} {shaderOn} {tiltOn} ontoggle={toggleVisual} />
+  </div>
 {:else}
-  <div class="shell">
-    <Sidebar {page} serverName={server.name} onleave={leave} {shaderOn} {tiltOn} ontoggle={toggleVisual} />
+  <div class="shell" in:fade={{ duration: 180 }}>
+    <Sidebar {page} serverName={server.name} game={server.game} onleave={leave} {shaderOn} {tiltOn} ontoggle={toggleVisual} />
     <main>
-      {#if page === 'dashboard'}
-        <Dashboard />
-      {:else if page === 'players'}
-        <Players />
-      {:else if page === 'map'}
-        <MapPage />
-      {:else if page === 'worlds'}
-        <Worlds />
-      {:else if page === 'console'}
-        <Console />
-      {:else if page === 'shop'}
-        <Shop />
-      {:else if page === 'admin'}
-        <AdminTools />
-      {/if}
+      {#key page}
+        <div in:popIn>
+          {#if page === 'dashboard'}
+            <Dashboard serverName={server.name} />
+          {:else if page === 'players'}
+            <Players serverName={server.name} />
+          {:else if page === 'worlds'}
+            <Worlds serverName={server.name} />
+          {:else if page === 'files'}
+            <Files serverName={server.name} />
+          {:else if page === 'console'}
+            <Console serverName={server.name} />
+          {:else if page === 'shop'}
+            <Shop serverName={server.name} />
+          {/if}
+        </div>
+      {/key}
     </main>
   </div>
 {/if}

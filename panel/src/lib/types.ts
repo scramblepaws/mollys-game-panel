@@ -1,39 +1,3 @@
-export interface Player {
-  name: string
-  pronouns: string | null
-  ping: number
-  gamemode: 'survival' | 'creative' | 'spectator'
-  world: string
-  x: number
-  y: number
-  z: number
-  health: number
-}
-
-export interface World {
-  id: string
-  name: string
-  kind: string
-  difficulty: 'easy' | 'peaceful'
-  border: number
-  players: number
-  icon: string
-}
-
-export interface Stats {
-  online: number
-  max: number
-  tps: number
-  uptime: string
-  worlds: number
-  version: string
-}
-
-export interface Activity {
-  time: string
-  text: string
-}
-
 export interface ShopItem {
   slug: string
   title: string
@@ -74,16 +38,70 @@ export interface ConsoleLine {
 export interface ServerInstance {
   name: string
   game: string
-  platform: 'paper' | 'purpur' | 'vanilla' | 'unknown'
+  platform: string
   version: string | null
   port: number
   path: string
   size: number
   created: string
-  status: 'online' | 'offline'
+  status: 'online' | 'offline' | 'installing' | 'starting' | 'failed'
+  installing?: boolean
+  installPercent?: number
+  installMessage?: string
+  etaSeconds?: number | null
+  speedBps?: number | null
+  failed?: boolean
+  errorMessage?: string
+}
+
+export interface GameMeta {
+  id: string
+  name: string
+  blurb: string
+  kind: 'minecraft' | 'steam'
+  defaultPort: number
+  needsPassword: boolean
+  supportsPlugins?: boolean
+  maps?: string[]
+  modes?: string[]
+}
+
+export interface InstallStatus {
+  status: 'running' | 'done' | 'error'
+  percent: number
+  message: string
+  game?: string
+  dir?: string
+  etaSeconds?: number | null
+  speedBps?: number | null
+}
+
+export interface ServerLogs {
+  running: boolean
+  lines: ConsoleLine[]
+}
+
+export interface ServerInfo {
+  name: string
+  game: string
+  running: boolean
+  version: string | null
+  worlds: number
+  uptimeSeconds: number | null
+  rcon: 'on' | 'off'
+  online: number | null
+  max: number | null
+  names: string[]
+  tps: [number, number, number] | null
+}
+
+export interface WorldInfo {
+  name: string
+  size: number
 }
 
 export interface CreateServerPayload {
+  game: string
   name: string
   platform: 'paper' | 'purpur' | 'vanilla'
   version: string
@@ -95,6 +113,14 @@ export interface CreateServerPayload {
   gamemode: 'survival' | 'creative' | 'adventure'
   onlineMode: boolean
   location: string
+  password: string
+  memoryMb: number
+  viewDistance: number
+  pvp: boolean
+  whitelist: boolean
+  map: string
+  gameMode: string
+  plugins: boolean
 }
 
 export interface SystemInfo {
@@ -103,4 +129,9 @@ export interface SystemInfo {
   cpus: number
   memTotal: number
   memFree: number
+}
+
+export interface SettingsInfo {
+  serversDir: string
+  custom: boolean
 }
