@@ -1,0 +1,17 @@
+# dependencies & builds
+panel/node_modules/
+panel/dist/
+
+# machine-specific state
+panel/server/instances.json
+
+# local server instances (jars, worlds, configs, logs)
+servers/
+
+# bundled runtimes (JDK)
+runtime/
+
+# os / editor junk
+.DS_Store
+Thumbs.db
+*.log
